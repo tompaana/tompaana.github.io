@@ -1,6 +1,6 @@
 # Chatbots as Middlemen #
 
-*Published originally January 9, 2017*
+*Published originally January 9, 2017*<br />
 *Updated April 16, 2018*
 
 Chatbots typically serve their customers on 1:1 basis. They are not unlike digital assistants
