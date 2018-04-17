@@ -1,3 +1,7 @@
-**[Chatbots as Middlemen](/content/chatbots_as_middlemen.md)**<br />
-*Published originally January 9, 2017*<br />
-*Updated April 16, 2018*<br />
+## [Chatbots as Middlemen](/content/chatbots_as_middlemen.md) ##
+*Published originally on January 9th, 2017*<br />
+*Updated on April 17th, 2018*
+
+This article explains the basics on how to create chatbots, using Microsoft Bot Framework, that can
+connect the user to a customer service agent. The method applies to both C# and Node.js SDKs.
+
