@@ -1,4 +1,5 @@
-## [Chatbots as Middlemen](/content/chatbots_as_middlemen.md) ##
+**[Chatbots as Middlemen](/content/chatbots_as_middlemen.md)**
+
 *Published originally on January 9th, 2017*<br />
 *Updated on April 17th, 2018*
 
