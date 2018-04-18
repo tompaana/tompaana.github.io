@@ -1,7 +1,7 @@
 # Remotely Controlled Bots #
 
 *Published originally on March 15th, 2017*<br />
-*Updated on April 17th, 2018*
+*Updated on April 18th, 2018*
 
 You know. Because it’s good to have a fail-safe around in case of Skynet.
 
@@ -22,7 +22,10 @@ That’s what we call it and apparently it’s just one word. What we mean by th
 message (like the ones users send to talk to a bot and the bot uses to reply back), but we just put
 the meaningful content in a different place of the message object
 ([Activity](https://docs.microsoft.com/en-us/dotnet/api/microsoft.bot.connector.activity?view=botconnector-3.12.2.4) in C#).
-Namely, we put the message the bot should react to somehow in IMessageActivity.ChannelData instead of IMessageActivity.Text. Tadaa! End of article.
+Namely, we put the message the bot should react to somehow in
+[IMessageActivity.ChannelData](https://docs.botframework.com/en-us/csharp/builder/sdkreference/d1/de8/interface_microsoft_1_1_bot_1_1_connector_1_1_i_message_activity.html)
+instead of [IMessageActivity.Text](https://docs.botframework.com/en-us/csharp/builder/sdkreference/d1/de8/interface_microsoft_1_1_bot_1_1_connector_1_1_i_message_activity.html).
+Tadaa! End of article.
 
 No, but it really is that simple! In a nutshell you devise a simple custom protocol that your bot
 knows, for example, when the IMessageActivity.Text contains “notification”, you look at the channel
@@ -31,8 +34,16 @@ code to do it’s job. Still don’t believe me? Look, here’s [a sample](https
 
 Ok, you got me. What I failed to mention is that you have to have some Microsoft Bot Framework
 specific code in your backend. Perhaps the easiest way to implement this backchannel messaging
-pipeline **between** the backend and the bot is using Direct Line. And the easiest way to use the
-Direct Line is by utilizing the ready-made client components for Node.js and C#. If your backend is not compatible with Node or C# components, implementing your own Direct Line connection is quite straightforward (the first link about Direct Line describes the protocol). They are, after all, only HTTP calls. My sample comes with a super simple console app sending notification commands to the bot. You should be able to use the code almost as-is, if your backend is built with C#.
+pipeline **between** the backend and the bot is using
+[Direct Line](https://docs.botframework.com/en-us/restapi/directline3/).
+And the easiest way to use the Direct Line is by utilizing the ready-made client components for
+[Node.js](https://www.npmjs.com/package/directline-api) and
+[C#](https://www.nuget.org/packages/Microsoft.Bot.Connector.DirectLine). If your backend is not
+compatible with Node or C# components, implementing your own Direct Line connection is quite
+straightforward (the first link about Direct Line describes the protocol). They are, after all, only
+HTTP calls. My sample comes with
+[a super simple console app sending notification commands to the bot](https://github.com/tompaana/remote-control-bot-sample/tree/master/RemoteControlBotControllerSample).
+You should be able to use the code almost as-is, if your backend is built with C#.
 
 What about **security**? I’m not an expert, but there are three points here I want to make:
 
@@ -41,15 +52,39 @@ What about **security**? I’m not an expert, but there are three points here I 
    as the channel (e.g. Skype) is secure
 3. You can encrypt the channel data content
 
-Note that some descriptions of backchannel say that you should also change the value of the Type property of your Activity; from being “message” to “event”. This is a matter of taste. The benefit of this is that you can be sure that your backchannel message is not treated as a regular message (because the type is not “message”).
+Note that some descriptions of backchannel say that you should also change the value of
+[the Type property](https://docs.botframework.com/en-us/csharp/builder/sdkreference/dc/d2f/class_microsoft_1_1_bot_1_1_connector_1_1_activity.html)
+of your Activity; from being “message” to “event”. This is a matter of taste. The benefit of this is
+that you can be sure that your backchannel message is not treated as a regular message (because the
+type is not “message”).
 
 ## Where to, sir? ##
 
-Where am I supposed to place this backchannel messaging specific code in my bot project? To me, this introduces some controversy; The bot framework utilizes Autofac, an inversion of control (IoC) container for dealing with dependencies, and I am not a fan. In my opinion wide use of IoC leads to incoherent code and architecture with little benefits to offer. And it can make writing tests (which I don’t do unlike true professionals I guess) a pain! But that’s just me – maybe my brain is not sophisticated enough to understand these kinds of exquicite concepts.
+Where am I supposed to place this backchannel messaging specific code in my bot project? To me, this
+introduces some controversy; The bot framework utilizes [Autofac](https://autofac.org/), an
+*inversion of control (IoC) container* for dealing with dependencies, and I am **not** a fan. In my
+opinion wide use of IoC leads to incoherent code and architecture with little benefits to offer. And
+it can make writing tests (which I don’t do unlike true professionals I guess) a pain! But that’s
+just me – maybe my brain is not sophisticated enough to understand these kinds of exquicite
+concepts.
 
-Just to show I can do things I don’t like I integrated the backchannel bot code using Autofac in my sample. Take a look at GlobalMessageHandlerModule.cs and Global.asax.cs. I’ve created classes derived from ScorableBase, which are automatically invoked when (and only when) I forward the received Activity object to my root dialog in MessagesController.cs. Then if a backchannel message is detected, the specific scorable class (NotificationsScorable in my sample) consumes and deals with the Activity and it is never given to my dialog. Special thanks to my brilliant colleague, Lilian Kasem, for coming up with this idea!
+Just to show I can do things I don’t like I integrated the backchannel bot code using Autofac in my
+sample. Take a look at
+[GlobalMessageHandlerModule.cs](https://github.com/tompaana/remote-control-bot-sample/blob/master/RemoteControlBotSample/GlobalMessageHandlerModule.cs)
+and [Global.asax.cs](https://github.com/tompaana/remote-control-bot-sample/blob/master/RemoteControlBotSample/Global.asax.cs).
+I’ve created classes derived from [ScorableBase](https://docs.botframework.com/en-us/csharp/builder/sdkreference/de/d7b/class_microsoft_1_1_bot_1_1_builder_1_1_scorables_1_1_internals_1_1_scorable_base.html),
+which are automatically invoked when (and only when) I forward the received `Activity` object to my
+root dialog in
+[MessagesController.cs](https://github.com/tompaana/remote-control-bot-sample/blob/master/RemoteControlBotSample/Controllers/MessagesController.cs).
+Then if a backchannel message is detected, the specific scorable class
+([NotificationsScorable](https://github.com/tompaana/remote-control-bot-sample/blob/master/RemoteControlBotSample/Notifications/NotificationsScorable.cs)
+in my sample) consumes and deals with the Activity and it is never given to my dialog. Special
+thanks to my brilliant colleague, [Lilian Kasem](http://liliankasem.com/), for coming up with this
+idea!
 
-Call me old-fashioned, but I still find the code a lot easier to understand if I simply put this logic to my MessagesController class (or equivalent) before passing anything to any dialog. That’s just the way I roll…
+Call me old-fashioned, but I still find the code a lot easier to understand if I simply put this
+logic to my MessagesController class (or equivalent) before passing anything to any dialog. That’s
+just the way I roll…
 
 ```cs
 if (we got a valid backchannel message)
@@ -68,6 +103,10 @@ See?
 
 ## Related resources ##
 
-* My sample demonstrating how to remotely force the bot to notify bunch of users about something: Remote Control Bot Sample (C#)
-* Proactive Bots blog post and code sample by Richard Custance
-* Somethingsomething and Contextual Bots via Back Channel (article where Back Channel is apparently two words)
+* My sample demonstrating how to remotely force the bot to notify bunch of users about something:
+  [Remote Control Bot Sample](https://github.com/tompaana/remote-control-bot-sample) (C#)
+* [Proactive Bots blog post](http://blog.codemoggy.com/index.php/2017/04/26/using-the-microsoft-bot-framework-and-azure-to-create-a-proactive-bot/)
+  and [code sample](https://github.com/CodeMoggy/ProactiveBotMessaging) by
+  [Richard Custance](https://github.com/CodeMoggy)
+* [Somethingsomething and Contextual Bots via Back Channel](https://blogs.msdn.microsoft.com/richard_dizeregas_blog/2017/02/15/sharepoint-framework-and-contextual-bots-via-back-channel/)
+  (article where Back Channel is apparently two words)

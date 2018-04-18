@@ -1,3 +1,10 @@
+**[Remotely Controlled Bots](/content/remotely_controlled_bots.md)**
+
+*Published originally on March 15th, 2017*<br />
+*Updated on April 18th, 2018*
+
+<hr />
+
 **[Chatbots as Middlemen](/content/chatbots_as_middlemen.md)**
 
 *Published originally on January 9th, 2017*<br />
